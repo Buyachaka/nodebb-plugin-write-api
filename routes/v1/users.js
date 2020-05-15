@@ -7,7 +7,8 @@ var Users = require.main.require('./src/user'),
 	errorHandler = require('../../lib/errorHandler'),
 	auth = require('../../lib/auth'),
 	utils = require('./utils'),
-	async = require.main.require('async');
+	async = require.main.require('async'),
+	plugins = require.main.require('./src/plugins');
 
 
 module.exports = function(/*middleware*/) {
@@ -116,6 +117,14 @@ module.exports = function(/*middleware*/) {
 				errorHandler.handle(err, res);
 			});
 		});
+
+	app.route('/addBadgeToUser')
+		.post(apiMiddleware.requireUser, function(req, res) {
+			plugins.fireHook('filter:addBadgeToUser', req.query, function (err, result) {
+				return errorHandler.handle(err, res, result);
+			});
+		});
+
 
 	app.route('/:uid/tokens')
 		.get(apiMiddleware.requireUser, function(req, res) {
